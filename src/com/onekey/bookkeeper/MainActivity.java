@@ -1,15 +1,19 @@
 package com.onekey.bookkeeper;
 
-import android.app.Activity;
+import org.kymjs.kjframe.KJActivity;
+
 import android.os.Bundle;
 
-public class MainActivity extends Activity {
+public class MainActivity extends KJActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
     }
+
+	@Override
+	public void setRootView() {
+        setContentView(R.layout.activity_main);
+	}
 
 }
