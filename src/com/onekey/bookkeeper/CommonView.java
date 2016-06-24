@@ -158,7 +158,7 @@ public class CommonView extends LinearLayout {
 		
 		LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(
 				0, LayoutParams.WRAP_CONTENT);
-		layoutParams1.weight = 1;
+		layoutParams2.weight = 1;
 		initCommonTextView(tv2);
 		parentView.addView(tv2, layoutParams2);
 	}
@@ -181,7 +181,7 @@ public class CommonView extends LinearLayout {
 		
 		LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(
 				0, LayoutParams.WRAP_CONTENT);
-		layoutParams1.weight = 1;
+		layoutParams2.weight = 1;
 		initCommonTextView(tv2);
 		parentView.addView(tv2, layoutParams2);
 	}
