@@ -1,8 +1,11 @@
 package com.onekey.bookkeeper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.kymjs.kjframe.KJDB;
+
+import android.util.Log;
 
 import com.onekey.bookkeeper.entity.Resource;
 
@@ -12,50 +15,93 @@ import com.onekey.bookkeeper.entity.Resource;
  * 
  */
 public class DataProcessCenter {
-
-	public static List<Resource> mResourceList;
-    private static KJDB mKJDB;
 	
-	public static List<Resource> create() {
+	public static DataProcessCenter instance;
+	
+	public KJDB mKJDB;
+	
+	private List<Resource> mResourceList;
+	
+	public static DataProcessCenter create() {
+		if (instance == null) {
+			instance = new DataProcessCenter();
+		}
+		return instance;
+	}
+	
+	public List<Resource> getChildList(int currentId) {
+		if (mKJDB == null) {
+			mKJDB = KJDB.create();
+		}
+
 		if (mResourceList == null) {
-			mResourceList = KJDB.create().findAll(Resource.class);
+			mResourceList = mKJDB.findAll(Resource.class);
 			if (mResourceList.isEmpty()) {
 				initialData();
 			}
+			Log.i("wzw", "list:" + mResourceList);
 		}
-		return mResourceList;
+		List<Resource> resourceList = new ArrayList<Resource>();
+		for (Resource resource : mResourceList) {
+			if (resource.getParent_id() == currentId) {
+				resourceList.add(resource);
+			}
+		}
+		return resourceList;
 	}
 	
-	private static void initialData() {
+	private void initialData() {
 		// 初始化一级目录
-		Resource level1 = getBean("记账单", -1);
+		getBean(1, "记账单", 1);
 		
-		Resource level2 = getBean("时间", -1);
+		getBean(2, "时间", 1);
 
-		Resource level3 = getBean("收入", 0);
+		getBean(3, "收入", 1, true, 0);
 
-		Resource level4 = getBean("支出", 0);
+		getBean(4, "支出", 1, true, 0);
 
-		Resource level5 = getBean("投资", 0);
+		getBean(5, "投资", 1, true, 0);
 		
-		Resource level6 = getBean("盈亏", -1);
+		getBean(6, "盈亏", 1);
 		
-		Resource level7 = getBean("退出登录", -1);
+		getBean(7, "退出登录", 1);
 		
+		// 初始化二级目录
+		getBean(8, "工资", 2, false, 3);
+		getBean(9, "线上", 2, true, 4);
+		getBean(10, "线下", 2, true, 4);
+		
+		// 初始化三级目录
+		getBean(11, "淘宝", 3, false, 9);
+		getBean(12, "京东", 3, false, 9);
+		getBean(13, "苏果", 3, false, 10);
+		
+		mResourceList = KJDB.create().findAll(Resource.class);
 	}
 	
-	private static Resource getBean(String name, int number) {
-		Resource level = new Resource();
-		level.setName("记账单");
-		level.setNumber(-1);
-		return level;
+	private Resource getBean(int id, String name, int level) {
+		Resource resource = new Resource();
+//		resource.setId(id);
+		resource.setName(name);
+		resource.setNumber(-1);
+		resource.setLevel(level);
+		resource.setHas_child(false);
+		
+		KJDB.create().save(resource);
+		return resource;
 	}
 	
-	private static Resource getBean(String name, int number, int isChild) {
-		Resource level = new Resource();
-		level.setName("记账单");
-		level.setNumber(-1);
-		return level;
+	private Resource getBean(int id, String name, int level, boolean hasChild, int parentId) {
+		Resource resource = new Resource();
+//		resource.setId(id);
+		resource.setName(name);
+		resource.setNumber(0);
+		resource.setLevel(level);
+		resource.setHas_child(hasChild);
+		resource.setParent_id(parentId);
+		
+		KJDB.create().save(resource);
+		return resource;
 	}
 
 }

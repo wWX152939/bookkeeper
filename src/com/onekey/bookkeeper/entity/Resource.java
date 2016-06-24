@@ -1,7 +1,10 @@
 package com.onekey.bookkeeper.entity;
 
+import org.kymjs.kjframe.database.annotate.Id;
+
 public class Resource {
-	private int resource_id;
+	@Id()
+	private int id;
 	private String name;
 	private int number;
 	private int parent_id;
@@ -9,6 +12,12 @@ public class Resource {
     private int level;
     private boolean expanded;
 	
+	@Override
+	public String toString() {
+		return "Resource [id=" + id + ", name=" + name + ", number=" + number
+				+ ", parent_id=" + parent_id + ", has_child=" + has_child
+				+ ", level=" + level + ", expanded=" + expanded + "]";
+	}
 	public boolean isHas_child() {
 		return has_child;
 	}
@@ -27,11 +36,11 @@ public class Resource {
 	public void setExpanded(boolean expanded) {
 		this.expanded = expanded;
 	}
-	public int getResource_id() {
-		return resource_id;
+	public int getId() {
+		return id;
 	}
-	public void setResource_id(int resource_id) {
-		this.resource_id = resource_id;
+	public void setId(int id) {
+		this.id = id;
 	}
 	public int getParent_id() {
 		return parent_id;

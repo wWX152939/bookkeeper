@@ -7,10 +7,4 @@
     tools:context="com.onekey.bookkeeper.MainActivity"
     tools:ignore="MergeRootFrame" >
     
-    <ListView 
-        android:id="@+id/list_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-    
-    
 </LinearLayout>
