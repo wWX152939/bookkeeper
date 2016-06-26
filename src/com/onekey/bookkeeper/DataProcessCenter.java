@@ -22,6 +22,8 @@ public class DataProcessCenter {
 	
 	private List<Resource> mResourceList;
 	
+	private Resource mParentBean;
+	
 	public static DataProcessCenter create() {
 		if (instance == null) {
 			instance = new DataProcessCenter();
@@ -29,7 +31,20 @@ public class DataProcessCenter {
 		return instance;
 	}
 	
-	public List<Resource> getChildList(int currentId) {
+	public void add(Resource resource) {
+		KJDB.create().save(resource);
+		mResourceList = mKJDB.findAll(Resource.class);
+	}
+	
+	public List<Resource> getAllList() {
+		return mResourceList;
+	}
+	
+	public List<Resource> getChildList(Resource currentBean) {
+		if (currentBean == null) {
+			currentBean = new Resource();
+		}
+		mParentBean = currentBean;
 		if (mKJDB == null) {
 			mKJDB = KJDB.create();
 		}
@@ -41,6 +56,8 @@ public class DataProcessCenter {
 			}
 			Log.i("wzw", "list:" + mResourceList);
 		}
+		
+		int currentId = currentBean.getId();
 		List<Resource> resourceList = new ArrayList<Resource>();
 		for (Resource resource : mResourceList) {
 			if (resource.getParent_id() == currentId) {
@@ -48,6 +65,58 @@ public class DataProcessCenter {
 			}
 		}
 		return resourceList;
+	}
+	
+	/**
+	 * @param currentId
+	 * @param number ≤Ó÷µ
+	 */
+	public void updateParentBean(Resource curResource, int number) {
+		if (mKJDB == null) {
+			mKJDB = KJDB.create();
+		}
+		mKJDB.update(curResource);
+		
+		Resource tmpResource = curResource;
+		do {
+			for (Resource resource : mResourceList) {
+				if (resource.getId() == tmpResource.getParent_id()) {
+					resource.setNumber(resource.getNumber() + number);
+					mKJDB.update(resource);
+					tmpResource = resource;
+					break;
+				}
+			}
+		} while (tmpResource.getParent_id() != 0);
+		
+		Resource income = null;
+		Resource expense = null;
+		Resource invest = null;
+		Resource total = null;
+		for (Resource resource : mResourceList) {
+			switch(resource.getId()) {
+			case 3:
+				income = resource;
+				break;
+			case 4:
+				expense = resource;
+				break;
+			case 5:
+				invest = resource;
+				break;
+			case 6:
+				total = resource;
+				break;
+			}
+		}
+		Log.i("wzw", "total:" + total.getNumber());
+		total.setNumber(income.getNumber() - expense.getNumber() + invest.getNumber());
+		Log.i("wzw", "total:" + total.getNumber());
+		mKJDB.update(total);
+	}
+	
+	public Resource getCurParentBean() {
+		return mParentBean;
 	}
 	
 	private void initialData() {

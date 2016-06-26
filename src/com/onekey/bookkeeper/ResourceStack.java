@@ -34,6 +34,18 @@ public class ResourceStack {
         return resourceListStack.lastElement();
     }
     
+    public List<Resource> getList(int position) {
+    	if (resourceListStack == null) {
+            throw new NullPointerException(
+                    "you need add Resource first");
+        }
+        if (resourceListStack.isEmpty()) {
+            return null;
+        }
+        
+        return resourceListStack.get(position);
+    }
+    
     public void removeTop() {
     	List<Resource> resource = top();
         if (resource != null) {

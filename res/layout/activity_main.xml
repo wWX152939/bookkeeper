@@ -3,8 +3,45 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.onekey.bookkeeper.MainActivity"
-    tools:ignore="MergeRootFrame" >
-    
+    android:orientation="vertical">
+    <include 
+        android:id="@+id/title"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        layout="@layout/dialog_title_bar"/>
+    <LinearLayout 
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+        <TextView 
+            android:layout_width="0dp"
+    		android:layout_height="wrap_content"
+    		android:layout_weight="1"
+    		android:text="名称"/>
+        <EditText
+            android:id="@+id/et"
+            android:layout_width="0dp"
+    		android:layout_height="wrap_content"
+    		android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout 
+        android:layout_width="match_parent"
+    	android:layout_height="wrap_content"
+    	android:orientation="horizontal">
+        <TextView 
+            android:layout_width="0dp"
+    		android:layout_height="wrap_content"
+    		android:layout_weight="1"
+    		android:text="是否是父节点"/>
+        <CheckBox 
+            android:id="@+id/cb"
+            android:layout_width="0dp"
+    		android:layout_height="wrap_content"
+    		android:layout_weight="1"/>
+    </LinearLayout>
+    <Button 
+        android:id="@+id/btn"
+        android:layout_width="wrap_content"
+    	android:layout_height="wrap_content"
+    	android:text="保存"/>
 </LinearLayout>

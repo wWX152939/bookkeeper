@@ -3,11 +3,15 @@ package com.onekey.bookkeeper;
 import java.util.List;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -27,6 +31,7 @@ public class CommonView extends LinearLayout {
 
 	private List<Resource> mResourceList;
 	private Context mContext;
+	private Activity mActivity;
 	private ViewInterface mViewInterface;
 
 	public CommonView(Context context) {
@@ -39,7 +44,8 @@ public class CommonView extends LinearLayout {
 
 	public CommonView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		mContext = context;
+		mActivity = (Activity) context;
+		mContext = mActivity.getBaseContext();
 	}
 	
 	public void setViewInterface(ViewInterface viewInterface) {
@@ -71,8 +77,16 @@ public class CommonView extends LinearLayout {
 		
 		int size = mResourceList.size();
 		for (int i = 0; i < size; i++) {
-			if (mResourceList.get(i).getNumber() == -1) {
+			if (mResourceList.get(i).isHas_child()) {
 				LinearLayout line = new LinearLayout(mContext);
+				line.setTag(mResourceList.get(i).getId());
+				line.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						mViewInterface.onLineClick(v);
+					}
+				});
 				line.setId(BASE_LINE_ID + i);
 				LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
 						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -82,40 +96,10 @@ public class CommonView extends LinearLayout {
 				layoutParams.bottomMargin = 10;
 				line.setOrientation(LinearLayout.HORIZONTAL);
 				line.setBackgroundColor(Color.WHITE);
-				
-				TextView tv = new TextView(mContext);
-				
-				LinearLayout.LayoutParams tvLayoutParams = new LinearLayout.LayoutParams(
-						LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-				
-				tv.setText(mResourceList.get(i).getName());
-				initCommonTextView(tv);
-				
-				line.addView(tv, tvLayoutParams);
+				createSubWidget(line, i);
 				addView(line, layoutParams);
 			} else {
-				if (mResourceList.get(i).isHas_child()) {
-					LinearLayout line = new LinearLayout(mContext);
-					line.setTag(mResourceList.get(i).getId());
-					line.setOnClickListener(new OnClickListener() {
-						
-						@Override
-						public void onClick(View v) {
-							mViewInterface.onLineClick(v);
-						}
-					});
-					line.setId(BASE_LINE_ID + i);
-					LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
-							LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-					layoutParams.leftMargin = 5;
-					layoutParams.rightMargin = 5;
-					layoutParams.topMargin = 10;
-					layoutParams.bottomMargin = 10;
-					line.setOrientation(LinearLayout.HORIZONTAL);
-					line.setBackgroundColor(Color.WHITE);
-					createSubWidget(line, i);
-					addView(line, layoutParams);
-				} else {
+				if (mResourceList.get(i).getNumber() == -1) {
 					LinearLayout line = new LinearLayout(mContext);
 					line.setId(BASE_LINE_ID + i);
 					LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -126,11 +110,51 @@ public class CommonView extends LinearLayout {
 					layoutParams.bottomMargin = 10;
 					line.setOrientation(LinearLayout.HORIZONTAL);
 					line.setBackgroundColor(Color.WHITE);
-					createSubWidgetWithEditText(line, i);
+					
+					TextView tv = new TextView(mContext);
+					
+					LinearLayout.LayoutParams tvLayoutParams = new LinearLayout.LayoutParams(
+							LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+					
+					tv.setText(mResourceList.get(i).getName());
+					initCommonTextView(tv);
+					
+					line.addView(tv, tvLayoutParams);
 					addView(line, layoutParams);
+				} 
+				else {
+					if (mResourceList.get(i).getParent_id() == 0) {
+						LinearLayout line = new LinearLayout(mContext);
+						line.setId(BASE_LINE_ID + i);
+						LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+								LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+						layoutParams.leftMargin = 5;
+						layoutParams.rightMargin = 5;
+						layoutParams.topMargin = 10;
+						layoutParams.bottomMargin = 10;
+						line.setOrientation(LinearLayout.HORIZONTAL);
+						line.setBackgroundColor(Color.WHITE);
+						createSubWidget(line, i);
+						addView(line, layoutParams);
+					} else {
+						LinearLayout line = new LinearLayout(mContext);
+						line.setId(BASE_LINE_ID + i);
+						LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
+								LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
+						layoutParams.leftMargin = 5;
+						layoutParams.rightMargin = 5;
+						layoutParams.topMargin = 10;
+						layoutParams.bottomMargin = 10;
+						line.setOrientation(LinearLayout.HORIZONTAL);
+						line.setBackgroundColor(Color.WHITE);
+						createSubWidgetWithEditText(line, i);
+						addView(line, layoutParams);
+					}
+					
 				}
 				
 			}
+			
 		}
 	}
 
@@ -153,7 +177,7 @@ public class CommonView extends LinearLayout {
 		Log.i("wzw", "tv2£º" + tv2 + " text:" + mContext + " res:" + mResourceList.get(i));
 		tv2.setId(BASE_TEXT_VIEW_2_ID + i);
 		if (mResourceList.get(i).getNumber() != 0) {
-			tv2.setText(mResourceList.get(i).getNumber());
+			tv2.setText(mResourceList.get(i).getNumber() + "");
 		}
 		
 		LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(
@@ -176,14 +200,40 @@ public class CommonView extends LinearLayout {
 		EditText tv2 = new EditText(mContext);
 		tv2.setId(BASE_TEXT_VIEW_2_ID + i);
 		if (mResourceList.get(i).getNumber() != 0) {
-			tv2.setText(mResourceList.get(i).getNumber());
+			tv2.setText(mResourceList.get(i).getNumber() + "");
 		}
 		
 		LinearLayout.LayoutParams layoutParams2 = new LinearLayout.LayoutParams(
 				0, LayoutParams.WRAP_CONTENT);
 		layoutParams2.weight = 1;
 		initCommonTextView(tv2);
+		initEditText(tv2);
 		parentView.addView(tv2, layoutParams2);
+	}
+	
+	private void initEditText(EditText et) {
+		et.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
+				Log.i("wzw", "onTextChanged");
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+					int arg3) {
+				Log.i("wzw", "beforeTextChanged");
+			}
+			
+			@Override
+			public void afterTextChanged(Editable arg0) {
+				Log.i("wzw", "afterTextChanged");
+				Button add = (Button) mActivity.getActionBar().getCustomView().findViewById(R.id.add);
+				Button save = (Button) mActivity.getActionBar().getCustomView().findViewById(R.id.save);
+				save.setVisibility(View.VISIBLE);
+				add.setVisibility(View.GONE);
+			}
+		});
 	}
 	
 	private void initCommonTextView(TextView tv) {

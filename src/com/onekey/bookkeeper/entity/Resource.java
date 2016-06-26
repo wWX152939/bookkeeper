@@ -1,5 +1,7 @@
 package com.onekey.bookkeeper.entity;
 
+import java.util.Date;
+
 import org.kymjs.kjframe.database.annotate.Id;
 
 public class Resource {
@@ -11,7 +13,14 @@ public class Resource {
     private boolean has_child;
     private int level;
     private boolean expanded;
+    private Date time;
 	
+	public Date getTime() {
+		return time;
+	}
+	public void setTime(Date time) {
+		this.time = time;
+	}
 	@Override
 	public String toString() {
 		return "Resource [id=" + id + ", name=" + name + ", number=" + number
