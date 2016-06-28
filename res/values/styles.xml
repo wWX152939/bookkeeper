@@ -9,5 +9,17 @@
     <style name="AppTheme" parent="@android:style/Theme.Holo">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
-
+    
+	<style name="DialogButtonStyle_Normal">
+        <item name="android:layout_height">30dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:background">@drawable/button_corners_blue_bg</item>
+        <item name="android:gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+    </style>
 </resources>

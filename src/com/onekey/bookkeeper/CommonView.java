@@ -52,6 +52,10 @@ public class CommonView extends LinearLayout {
 		mViewInterface = viewInterface;
 	}
 	
+	/**
+	 * 设置数据，并刷新界面
+	 * @param resourceList
+	 */
 	public void setResourceList(List<Resource> resourceList) {
 		mResourceList = resourceList;
 		initView();
@@ -69,7 +73,7 @@ public class CommonView extends LinearLayout {
 				LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 		setLayoutParams(parentParams);
 
-		Log.i("wzw", "initView");
+		LogUtil.i("initView");
 		setBackgroundColor(Color.WHITE);
 		if (mResourceList == null) {
 			return;
@@ -77,7 +81,8 @@ public class CommonView extends LinearLayout {
 		
 		int size = mResourceList.size();
 		for (int i = 0; i < size; i++) {
-			if (mResourceList.get(i).isHas_child()) {
+			if (mResourceList.get(i).getHas_child() == 1) {
+				// 有子的情况下，初始化行监听，初始化两个textView
 				LinearLayout line = new LinearLayout(mContext);
 				line.setTag(mResourceList.get(i).getId());
 				line.setOnClickListener(new OnClickListener() {
@@ -100,6 +105,7 @@ public class CommonView extends LinearLayout {
 				addView(line, layoutParams);
 			} else {
 				if (mResourceList.get(i).getNumber() == -1) {
+					// 没有子，但是为了界面统一显示，设置number为-1，创建一个textView
 					LinearLayout line = new LinearLayout(mContext);
 					line.setId(BASE_LINE_ID + i);
 					LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -124,6 +130,7 @@ public class CommonView extends LinearLayout {
 				} 
 				else {
 					if (mResourceList.get(i).getParent_id() == 0) {
+						// 一级目录，创建两个textView（一级目录不存在editText）
 						LinearLayout line = new LinearLayout(mContext);
 						line.setId(BASE_LINE_ID + i);
 						LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -137,6 +144,7 @@ public class CommonView extends LinearLayout {
 						createSubWidget(line, i);
 						addView(line, layoutParams);
 					} else {
+						// 没有子，不是一级目录，创建一个textView和一个EditText
 						LinearLayout line = new LinearLayout(mContext);
 						line.setId(BASE_LINE_ID + i);
 						LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
@@ -160,6 +168,7 @@ public class CommonView extends LinearLayout {
 
 	
 	/**
+	 * 创建两个TextView
 	 * @param parentView
 	 * @param i
 	 */
@@ -174,7 +183,6 @@ public class CommonView extends LinearLayout {
 		parentView.addView(tv1, layoutParams1);
 		
 		TextView tv2 = new TextView(mContext);
-		Log.i("wzw", "tv2：" + tv2 + " text:" + mContext + " res:" + mResourceList.get(i));
 		tv2.setId(BASE_TEXT_VIEW_2_ID + i);
 		if (mResourceList.get(i).getNumber() != 0) {
 			tv2.setText(mResourceList.get(i).getNumber() + "");
@@ -187,6 +195,11 @@ public class CommonView extends LinearLayout {
 		parentView.addView(tv2, layoutParams2);
 	}
 	
+	/**
+	 * 创建一个TextView和一个EditText
+	 * @param parentView
+	 * @param i
+	 */
 	private void createSubWidgetWithEditText(LinearLayout parentView, int i) {
 		TextView tv1 = new TextView(mContext);
 		LinearLayout.LayoutParams layoutParams1 = new LinearLayout.LayoutParams(
@@ -197,7 +210,7 @@ public class CommonView extends LinearLayout {
 		initCommonTextView(tv1);
 		parentView.addView(tv1, layoutParams1);
 		
-		EditText tv2 = new EditText(mContext);
+		EditText tv2 = (EditText) mActivity.getLayoutInflater().inflate(R.layout.base_dialog_number_edit_text, null);
 		tv2.setId(BASE_TEXT_VIEW_2_ID + i);
 		if (mResourceList.get(i).getNumber() != 0) {
 			tv2.setText(mResourceList.get(i).getNumber() + "");
@@ -211,23 +224,24 @@ public class CommonView extends LinearLayout {
 		parentView.addView(tv2, layoutParams2);
 	}
 	
+	/**
+	 * 初始化EditText，在输入数字后，改变actionBar按钮
+	 * @param et
+	 */
 	private void initEditText(EditText et) {
 		et.addTextChangedListener(new TextWatcher() {
 			
 			@Override
 			public void onTextChanged(CharSequence arg0, int arg1, int arg2, int arg3) {
-				Log.i("wzw", "onTextChanged");
 			}
 			
 			@Override
 			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
 					int arg3) {
-				Log.i("wzw", "beforeTextChanged");
 			}
 			
 			@Override
 			public void afterTextChanged(Editable arg0) {
-				Log.i("wzw", "afterTextChanged");
 				Button add = (Button) mActivity.getActionBar().getCustomView().findViewById(R.id.add);
 				Button save = (Button) mActivity.getActionBar().getCustomView().findViewById(R.id.save);
 				save.setVisibility(View.VISIBLE);

@@ -2,17 +2,15 @@ package com.onekey.bookkeeper.entity;
 
 import java.util.Date;
 
-import org.kymjs.kjframe.database.annotate.Id;
-
 public class Resource {
-	@Id()
+	
 	private int id;
+	private int dir_id;
 	private String name;
 	private int number;
 	private int parent_id;
-    private boolean has_child;
+    private int has_child;
     private int level;
-    private boolean expanded;
     private Date time;
 	
 	public Date getTime() {
@@ -23,14 +21,21 @@ public class Resource {
 	}
 	@Override
 	public String toString() {
-		return "Resource [id=" + id + ", name=" + name + ", number=" + number
-				+ ", parent_id=" + parent_id + ", has_child=" + has_child
-				+ ", level=" + level + ", expanded=" + expanded + "]";
+		return "Resource [id=" + id + ", dir_id=" + dir_id + ", name=" + name
+				+ ", number=" + number + ", parent_id=" + parent_id
+				+ ", has_child=" + has_child + ", level=" + level + ", time="
+				+ time + "]";
 	}
-	public boolean isHas_child() {
+	public int getDir_id() {
+		return dir_id;
+	}
+	public void setDir_id(int dir_id) {
+		this.dir_id = dir_id;
+	}
+	public int getHas_child() {
 		return has_child;
 	}
-	public void setHas_child(boolean has_child) {
+	public void setHas_child(int has_child) {
 		this.has_child = has_child;
 	}
 	public int getLevel() {
@@ -38,12 +43,6 @@ public class Resource {
 	}
 	public void setLevel(int level) {
 		this.level = level;
-	}
-	public boolean isExpanded() {
-		return expanded;
-	}
-	public void setExpanded(boolean expanded) {
-		this.expanded = expanded;
 	}
 	public int getId() {
 		return id;

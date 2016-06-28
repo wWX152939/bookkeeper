@@ -5,14 +5,10 @@ import java.util.Date;
 import java.util.List;
 
 import org.kymjs.kjframe.KJActivity;
-import org.kymjs.kjframe.KJDB;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -28,7 +24,11 @@ import com.onekey.bookkeeper.entity.Resource;
 
 public class MainActivity extends KJActivity {
 
-	private List<Resource> mResourceList = new ArrayList<Resource>();
+	public final static String KEY_DIR_ID = "key_dir_id";
+	
+	/**
+	 * View
+	 */
 	private CommonView mCommonView;
 	
 	private Button mAddView;
@@ -36,8 +36,16 @@ public class MainActivity extends KJActivity {
 	private TextView mTitleView;
 	private ImageButton mBackView;
 	
+	/**
+	 * Data
+	 */
+	private List<Resource> mResourceList = new ArrayList<Resource>();
+	private int mDirId;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+    	Bundle bundle = getIntent().getExtras();
+    	mDirId = (Integer) bundle.get(KEY_DIR_ID);
         super.onCreate(savedInstanceState);
         initActionBar();
     }
@@ -80,17 +88,12 @@ public class MainActivity extends KJActivity {
 		mBackView.setOnClickListener(listener);
 	}
     
-    private Handler mHandler = new Handler() {
-    	
-    	@Override
-    	public void handleMessage(Message msg) {
-			Toast.makeText(getBaseContext(), "添加成功", Toast.LENGTH_SHORT).show();
-    	}
-    };
-    
+    /**
+     * 添加弹出界面初始化
+     */
     private void add() {
     	AlertDialog.Builder addPopup = new AlertDialog.Builder(this);
-    	View dialogView = getLayoutInflater().inflate(R.layout.activity_main, null);
+    	View dialogView = getLayoutInflater().inflate(R.layout.main_dialog, null);
 		addPopup.setView(dialogView);
 		addPopup.setCancelable(false);
 		final AlertDialog dialog = addPopup.create();
@@ -106,9 +109,9 @@ public class MainActivity extends KJActivity {
 					Resource resource = new Resource();
 					resource.setName(et.getText().toString());
 					if (cb.isChecked()) {
-						resource.setHas_child(true);
+						resource.setHas_child(1);
 					} else {
-						resource.setHas_child(false);
+						resource.setHas_child(0);
 					}
 					Resource parent = DataProcessCenter.create().getCurParentBean();
 					resource.setLevel(parent.getLevel() + 1);
@@ -116,7 +119,7 @@ public class MainActivity extends KJActivity {
 					resource.setTime(new Date(System.currentTimeMillis()));
 					mResourceList.add(resource);
 					mCommonView.setResourceList(mResourceList);
-					DataProcessCenter.create().add(resource);
+					DataProcessCenter.create().add(resource, mDirId);
 					dialog.dismiss();
 					Toast.makeText(getBaseContext(), "添加成功", Toast.LENGTH_SHORT).show();
 				}
@@ -133,18 +136,23 @@ public class MainActivity extends KJActivity {
 		});
     }
     
+    /**
+     * actionBar保存按钮初始化
+     */
     private void save() {
     	boolean changeFlag = false;
     	for (int i = 0; i < mResourceList.size(); i++) {
-    		if (!mResourceList.get(i).isHas_child() && mResourceList.get(i).getParent_id() != 0) {
+    		if (0 == mResourceList.get(i).getHas_child() && mResourceList.get(i).getParent_id() != 0) {
     			TextView tv = (TextView) mCommonView.findViewById(CommonView.BASE_TEXT_VIEW_2_ID + i);
     			if (EditText.class.isInstance(tv)) {
     				String number = (String) tv.getText().toString();
-    				int differenceNumber = Integer.parseInt(number) - mResourceList.get(i).getNumber();
-    				mResourceList.get(i).setNumber(Integer.parseInt(number));
-    				mResourceList.get(i).setTime(new Date(System.currentTimeMillis()));
-    				DataProcessCenter.create().updateParentBean(mResourceList.get(i), differenceNumber);
-    				changeFlag = true;
+    				if (!number.isEmpty()) {
+    					int differenceNumber = Integer.parseInt(number) - mResourceList.get(i).getNumber();
+        				mResourceList.get(i).setNumber(Integer.parseInt(number));
+        				mResourceList.get(i).setTime(new Date(System.currentTimeMillis()));
+        				DataProcessCenter.create().update(mResourceList.get(i), differenceNumber);
+        				changeFlag = true;
+    				}
     			}
     		}
     	}
@@ -158,7 +166,7 @@ public class MainActivity extends KJActivity {
 	@Override
 	public void setRootView() {
 		mCommonView = new CommonView(this);
-		mResourceList = DataProcessCenter.create().getChildList(null);
+		mResourceList = DataProcessCenter.create().getChildList(null, mDirId);
 		mCommonView.setResourceList(mResourceList);
 		mCommonView.setViewInterface(new ViewInterface() {
 			
@@ -171,14 +179,17 @@ public class MainActivity extends KJActivity {
         setContentView(mCommonView);
 	}
 	
+    /**
+     * 有子的情况下，点击响应事件实现
+     * @param v
+     */
     public void onLClick(View v) {
         for (int i = 0; i < mResourceList.size(); i++) {
-        	if (mResourceList.get(i).isHas_child()) {
+        	if (mResourceList.get(i).getHas_child() == 1) {
         		if (mResourceList.get(i).getId() == (Integer)v.getTag()) {
-            		mResourceList = DataProcessCenter.create().getChildList(mResourceList.get(i));
+            		mResourceList = DataProcessCenter.create().getChildList(mResourceList.get(i), mDirId);
 
             		ResourceStack.create().add(mResourceList);
-            		Log.i("wzw", "onClick");
             		mCommonView.setResourceList(mResourceList);
             	}
         	}
@@ -187,16 +198,42 @@ public class MainActivity extends KJActivity {
 	
 	@Override
 	public void onBackPressed() {
-		Log.i("wzw", "onBackPressed");
 		mResourceList = ResourceStack.create().top();
 		if (mResourceList != null && !mResourceList.isEmpty()) {
 			if (mResourceList.get(0).getLevel() != 1) {
 				ResourceStack.create().removeTop();
+				mResourceList = ResourceStack.create().top();
+				String ids = "";
+				for (Resource resource : mResourceList) {
+					ids += resource.getId() + ",";
+				}
+				if (ids.endsWith(",")) {
+					ids = ids.substring(0, ids.length() - 1);
+				}
+				mResourceList = DataProcessCenter.create().refresh(ids);
+				mCommonView.setResourceList(mResourceList);
+			} else {
+				finish();
 			}
+		} else {
+			ResourceStack.create().removeTop();
+			mResourceList = ResourceStack.create().top();
+			if (mResourceList != null) {
+				String ids = "";
+				for (Resource resource : mResourceList) {
+					ids += resource.getId() + ",";
+				}
+				if (ids.endsWith(",")) {
+					ids = ids.substring(0, ids.length() - 1);
+				}
+				mResourceList = DataProcessCenter.create().refresh(ids);
+				mCommonView.setResourceList(mResourceList);
+			} else {
+				finish();
+			}
+			
 		}
 		
-		mResourceList = ResourceStack.create().top();
-		mCommonView.setResourceList(mResourceList);
 	}
 	
 }

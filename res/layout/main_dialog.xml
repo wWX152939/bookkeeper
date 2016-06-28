@@ -3,6 +3,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:orientation="vertical">
     <include 
         android:id="@+id/title"
@@ -16,22 +17,28 @@
         <TextView 
             android:layout_width="0dp"
     		android:layout_height="wrap_content"
+    		android:layout_marginLeft="5dp"
     		android:layout_weight="1"
+    		android:textColor="@android:color/black"
     		android:text="名称"/>
         <EditText
             android:id="@+id/et"
             android:layout_width="0dp"
     		android:layout_height="wrap_content"
+    		android:textColor="@android:color/black"
     		android:layout_weight="1"/>
     </LinearLayout>
-    <LinearLayout 
+    <LinearLayout
+        android:id="@+id/cb_line"
         android:layout_width="match_parent"
     	android:layout_height="wrap_content"
     	android:orientation="horizontal">
         <TextView 
             android:layout_width="0dp"
+    		android:layout_marginLeft="5dp"
     		android:layout_height="wrap_content"
     		android:layout_weight="1"
+    		android:textColor="@android:color/black"
     		android:text="是否是父节点"/>
         <CheckBox 
             android:id="@+id/cb"
@@ -42,6 +49,8 @@
     <Button 
         android:id="@+id/btn"
         android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
+    	android:layout_height="30dp"
+    	android:layout_gravity="center"
+		style="@style/DialogButtonStyle_Normal"
     	android:text="保存"/>
 </LinearLayout>
